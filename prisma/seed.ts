@@ -5,6 +5,12 @@ import { orders } from "../src/fixtures/orders";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.$transaction([
+    prisma.productOrders.deleteMany(),
+    prisma.shippingInfo.deleteMany(),
+    prisma.order.deleteMany(),
+    prisma.product.deleteMany(),
+  ]);
   await prisma.product.createMany({
     data: products,
   });
@@ -17,9 +23,9 @@ async function main() {
 
   await prisma.order.create({
     data: {
-      status: "Draft" as OrderStatus
-    }
-  })
+      status: "Draft" as OrderStatus,
+    },
+  });
 }
 
 main()
