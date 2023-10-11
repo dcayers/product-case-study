@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../prisma/generated/client/edge";
+import { PrismaClient } from "../../prisma/generated/client";
 
 declare global {
   var prisma: PrismaClient;
