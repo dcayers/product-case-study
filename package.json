@@ -8,8 +8,7 @@
     "migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "reset": "prisma migrate reset",
-    "seed": "prisma db seed",
-    "vercel-build": "npx prisma generate --data-proxy && next build"
+    "seed": "prisma db seed"
   },
   "dependencies": {
     "@pothos/core": "^3.38.0",
