@@ -22,6 +22,12 @@ builder.queryType({
   fields: (t) => ({
     ok: t.boolean({
       resolve: () => true
+    }),
+    checkP: t.boolean({
+      resolve: () => prisma ? true : false
+    }),
+    checkG: t.boolean({
+      resolve: () => global.prisma ? true : false
     })
   })
 })
