@@ -8,12 +8,14 @@
     "migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "reset": "prisma migrate reset",
-    "seed": "prisma db seed"
+    "seed": "prisma db seed",
+    "vercel-build": "prisma generate --no-engine && prisma db push && prisma db seed && next build"
   },
   "dependencies": {
     "@pothos/core": "^3.38.0",
     "@pothos/plugin-prisma": "^3.61.0",
     "@prisma/client": "^5.4.2",
+    "@prisma/extension-accelerate": "^0.6.2",
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.4",
     "graphql-yoga": "^4.0.5",
