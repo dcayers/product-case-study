@@ -24,6 +24,7 @@ async function main() {
   await prisma.order.create({
     data: {
       status: "Draft" as OrderStatus,
+      description: "Draft Order Test"
     },
   });
 }

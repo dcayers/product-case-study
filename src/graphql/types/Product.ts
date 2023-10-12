@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { builder } from "../builder";
 
 builder.prismaObject("Product", {
@@ -12,10 +13,34 @@ builder.prismaObject("Product", {
   }),
 });
 
-builder.queryField("products", (t) =>
+const DEFAULT_PAGE_SIZE = 10;
+
+builder.queryField("getProducts", (t) =>
   t.prismaField({
     type: ["Product"],
-    resolve: (query) => prisma.product.findMany({ ...query }),
+    args: {
+      search: t.arg.string(),
+      take: t.arg.int(),
+      skip: t.arg.int(),
+    },
+    resolve: async (query, _parent, args) => {
+      if (args.search) {
+        const searchTerms = args.search?.replace(/\s/g, " | ");
+        return prisma.product.findMany({
+          ...query,
+          take: args.take ?? DEFAULT_PAGE_SIZE,
+          skip: args.skip ?? 0,
+          where: {
+            OR: [
+              { description: { search: searchTerms } },
+              { name: { search: searchTerms } },
+            ],
+          },
+        });
+      }
+
+      return prisma.product.findMany({ ...query });
+    },
   })
 );
 

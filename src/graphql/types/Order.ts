@@ -5,11 +5,13 @@ builder.prismaObject("Order", {
   fields: (t) => ({
     id: t.exposeID("id"),
     status: t.expose("status", { type: Status }),
+    description: t.exposeString("description", { nullable: true }),
     products: t.relation("products", { nullable: true }),
     shipping: t.relation("shipping", { nullable: true }),
     shippingInfoId: t.exposeString("shippingInfoId", { nullable: true }),
     createdAt: t.expose("createdAt", { type: "Date", nullable: true }),
     updatedAt: t.expose("updatedAt", { type: "Date", nullable: true }),
+    productsInOrder: t.relationCount("products"),
   }),
 });
 

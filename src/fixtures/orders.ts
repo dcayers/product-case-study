@@ -18,6 +18,7 @@ export const orders: Prisma.OrderUncheckedCreateInput[] = [
   {
     id: "1",
     status: "Picking",
+    description: "Order One",
     products: {
       create: orderOne.map(([productId, quantity]) => ({
         product: {
@@ -32,6 +33,7 @@ export const orders: Prisma.OrderUncheckedCreateInput[] = [
   {
     id: "2",
     status: "Received",
+    description: "Order Two",
     products: {
       create: orderTwo.map(([productId, quantity]) => ({
         product: {
@@ -46,6 +48,7 @@ export const orders: Prisma.OrderUncheckedCreateInput[] = [
   {
     id: "3",
     status: "Processing",
+    description: "Order Three",
     products: {
       create: orderThree.map(([productId, quantity]) => ({
         product: {

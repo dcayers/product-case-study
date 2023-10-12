@@ -4,13 +4,17 @@ import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated"
 import prisma from "../lib/client"
 
-export const builder = new SchemaBuilder<{ PrismaTypes: PrismaTypes,
+export const builder = new SchemaBuilder<{ 
+  PrismaTypes: PrismaTypes,
   Scalars: {
     Date: {
       Input: Date;
       Output: Date;
     }
-  }
+  },
+  Connection: {
+    totalCount: number | (() => number | Promise<number>);
+  };
 }>({
   plugins: [PrismaPlugin],
   prisma: {

@@ -1,11 +1,12 @@
-import '@mantine/core/styles.css';
+import "@mantine/core/styles.css";
 import { Inter } from "next/font/google";
 
-import { MantineProvider, ColorSchemeScript } from '@mantine/core';
+import { ColorSchemeScript } from "@mantine/core";
+import { Providers } from "@/lib/providers";
 
 export const metadata = {
-  title: 'Product Case Study',
-  description: '🤯',
+  title: "Product Case Study",
+  description: "🤯",
 };
 
 const inter = Inter({
@@ -16,16 +17,21 @@ const inter = Inter({
 
 export default function RootLayout({
   children,
+  order,
 }: {
   children: React.ReactNode;
+  order: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="light" />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <Providers>
+          {children}
+          {order}
+        </Providers>
       </body>
     </html>
   );

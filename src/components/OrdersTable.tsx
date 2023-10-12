@@ -1,38 +1,19 @@
 "use client";
 import { Table } from "@mantine/core";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import { formatDate, toServerDate } from "@/lib/helpers/formatDate";
+import { Order, Product } from "@prisma/client";
 
-import { useQuery, gql } from "@urql/next";
+interface FullOrder extends Order {
+  products: Product[];
+}
 
-const ORDERS_QUERY = gql`
-  query OrdersQuery {
-    orders {
-      status
-      updatedAt
-      createdAt
-      id
-      products {
-        product {
-          createdAt
-          description
-          id
-          name
-          price
-          quantity
-          updatedAt
-        }
-        quantity
-      }
-    }
-  }
-`;
-
-export function OrdersTable() {
-  const [result] = useQuery({ query: ORDERS_QUERY });
-  const { data, fetching, error } = result;
-
-  if (fetching) return <p>Loading...</p>;
-  console.log(result);
-  if (error) return <p>Oh no... {error.message}</p>;
+/**
+ * NOTES
+ * This component could be optimized by moving the product parsing to the backend as
+ * apart of the query that returns
+ */
+export function OrdersTable({ orders }: { orders: FullOrder[] }) {
   return (
     <Table>
       <Table.Thead>
@@ -40,14 +21,25 @@ export function OrdersTable() {
           <Table.Th>Order No.</Table.Th>
           <Table.Th>Description</Table.Th>
           <Table.Th>Status</Table.Th>
+          <Table.Th>Created</Table.Th>
+
+          <Table.Th>Last Update</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
-        <Table.Tr>
-          <Table.Td>1</Table.Td>
-          <Table.Td>Random Description</Table.Td>
-          <Table.Td>Pending</Table.Td>
-        </Table.Tr>
+        {orders.map((order) => (
+          <Table.Tr key={order.id}>
+            <Table.Td>{order.id}</Table.Td>
+            <Table.Td>{order.description}</Table.Td>
+            <Table.Td>{order.status}</Table.Td>
+            <Table.Td>
+              {formatDate(new Date(order.createdAt!), "dd-MM-yyyy p")}
+            </Table.Td>
+            <Table.Td>
+              {formatDistanceToNow(toServerDate(order.updatedAt!))} ago
+            </Table.Td>
+          </Table.Tr>
+        ))}
       </Table.Tbody>
     </Table>
   );
