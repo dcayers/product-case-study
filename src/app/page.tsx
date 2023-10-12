@@ -7,6 +7,8 @@ import { ORDERS_QUERY } from "@/graphql/queries";
 
 console.log(process.env.NEXT_PUBLIC_URL);
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const { data } = await getClient().query({ query: ORDERS_QUERY });
   return (
