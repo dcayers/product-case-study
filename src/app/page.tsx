@@ -7,12 +7,11 @@ import { ORDERS_QUERY } from "@/graphql/queries";
 
 export default async function Page() {
   const { data } = await getClient().query({ query: ORDERS_QUERY });
-  console.log(data);
   return (
     <Flex direction="column" gap="md">
       <Flex align="center" justify="space-between">
         <h2>Orders</h2>
-        <Button variant="light" leftSection={<IconPhoto size={14} />} component={Link} href="new">
+        <Button variant="light" leftSection={<IconPhoto size={14} />} component={Link} href="new" prefetch={false}>
           New Order
         </Button>
       </Flex>
