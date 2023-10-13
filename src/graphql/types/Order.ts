@@ -37,6 +37,23 @@ builder.queryField("orders", (t) =>
   })
 );
 
+builder.queryField("getOrderByOrderNumber", (t) =>
+  t.prismaField({
+    type: "Order",
+    args: {
+      orderNo: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _parent, { orderNo }) => {
+      return prisma.order.findUniqueOrThrow({
+        ...query,
+        where: {
+          orderNo,
+        },
+      });
+    },
+  })
+);
+
 builder.mutationField("createDraftOrder", (t) =>
   t.prismaField({
     type: "Order",
@@ -44,6 +61,49 @@ builder.mutationField("createDraftOrder", (t) =>
       return prisma.order.create({
         data: {
           orderNo: generateOrderNo(),
+          shipping: {
+            create: {},
+          },
+        },
+      });
+    },
+  })
+);
+
+const UpdateOrderInput = builder.inputType("UpdateOrderInput", {
+  fields: (t) => ({
+    orderNo: t.string({ required: true }),
+    description: t.string({ required: true }),
+    deliveryAddress: t.string(),
+    contactName: t.string(),
+    contactNumber: t.string(),
+    contactEmail: t.string(),
+  }),
+});
+
+builder.mutationField("updateDraftOrder", (t) =>
+  t.prismaField({
+    type: "Order",
+    args: {
+      input: t.arg({ type: UpdateOrderInput, required: true }),
+    },
+    resolve: async (
+      query,
+      _parent,
+      { input: { orderNo, description, ...shippingDetails } }
+    ) => {
+      return prisma.order.update({
+        ...query,
+        where: {
+          orderNo,
+        },
+        data: {
+          description,
+          shipping: {
+            update: {
+              ...shippingDetails,
+            },
+          },
         },
       });
     },
@@ -193,17 +253,13 @@ builder.mutationField("updateOrderStatus", (t) =>
   })
 );
 
-builder.mutationField("addShippingDetails", (t) =>
+builder.mutationField("addTrackingDetails", (t) =>
   t.prismaField({
     type: "Order",
     args: {
       id: t.arg.string({ required: true }),
       trackingCompany: t.arg.string({ required: true }),
       trackingNumber: t.arg.string({ required: true }),
-      deliveryAddress: t.arg.string({ required: true }),
-      contactName: t.arg.string({ required: true }),
-      contactNumber: t.arg.string({ required: true }),
-      contactEmail: t.arg.string({ required: true }),
     },
     resolve: async (query, _parent, { id, ...args }) => {
       return prisma.order.update({
@@ -211,7 +267,7 @@ builder.mutationField("addShippingDetails", (t) =>
         where: { id },
         data: {
           shipping: {
-            create: {
+            update: {
               ...args,
             },
           },
@@ -228,10 +284,6 @@ builder.mutationField("ammendShippingDetails", (t) =>
       id: t.arg.string({ required: true }),
       trackingCompany: t.arg.string({ required: true }),
       trackingNumber: t.arg.string({ required: true }),
-      deliveryAddress: t.arg.string({ required: true }),
-      contactName: t.arg.string({ required: true }),
-      contactNumber: t.arg.string({ required: true }),
-      contactEmail: t.arg.string({ required: true }),
     },
     resolve: async (query, _parent, { id, ...args }) => {
       return prisma.order.update({

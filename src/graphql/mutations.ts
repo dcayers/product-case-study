@@ -14,3 +14,20 @@ export const CREATE_DRAFT_ORDER = gql`
     }
   }
 `;
+
+export const UPDATE_DRAFT_ORDER = gql`
+  mutation UpdateDraftOrder($input: UpdateOrderInput!) {
+    updateDraftOrder(input: $input) {
+      orderNo
+      description
+      id
+      updatedAt
+      shipping {
+        contactEmail
+        contactName
+        contactNumber
+        deliveryAddress
+      }
+    }
+  }
+`;

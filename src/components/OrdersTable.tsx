@@ -44,6 +44,8 @@ export function OrdersTable({ orders }: { orders: FullOrder[] }) {
                   size="lg"
                   aria-label="Edit Order"
                   loaderProps={{ type: "dots" }}
+                  component={Link}
+                  href={`/order/${order.orderNo}/edit`}
                 >
                   <IconPencil />
                 </ActionIcon>
@@ -52,7 +54,7 @@ export function OrdersTable({ orders }: { orders: FullOrder[] }) {
                   size="lg"
                   aria-label="Add Tracking Details"
                   component={Link}
-                  href={`${order.orderNo}/tracking`}
+                  href={`/order/${order.orderNo}/tracking`}
                 >
                   <IconTruckDelivery
                     style={{ width: rem(24), height: rem(24) }}

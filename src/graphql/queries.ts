@@ -24,3 +24,26 @@ export const ORDERS_QUERY = gql`
     }
   }
 `;
+
+export const ORDERS_BY_ORDER_NO_QUERY = gql`
+  query GetOrderByOrderNo($orderNo: String!) {
+    getOrderByOrderNumber(orderNo: $orderNo) {
+      id
+      orderNo
+      description
+      products {
+        quantity
+        product {
+          id
+          name
+        }
+      }
+      shipping {
+        contactEmail
+        contactName
+        contactNumber
+        deliveryAddress
+      }
+    }
+  }
+`;

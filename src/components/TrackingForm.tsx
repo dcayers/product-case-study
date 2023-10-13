@@ -1,20 +1,10 @@
 "use client";
-import { useRouter } from 'next/navigation'
-import {
-  useForm,
-  hasLength,
-} from "@mantine/form";
-import {
-  Text,
-  Button,
-  Group,
-  TextInput,
-  Box,
-  Flex,
-} from "@mantine/core";
+import { useRouter } from "next/navigation";
+import { useForm, hasLength } from "@mantine/form";
+import { Text, Button, Group, TextInput, Box, Flex } from "@mantine/core";
 
 export function TrackingForm({ orderId }: { orderId?: string }) {
-  const router = useRouter()
+  const router = useRouter();
   const form = useForm({
     initialValues: {
       trackingCompany: "",
@@ -56,7 +46,9 @@ export function TrackingForm({ orderId }: { orderId?: string }) {
       </Flex>
 
       <Group justify="flex-end" mt="md">
-        <Button onClick={() => router.back()}>Cancel</Button>
+        <Button color="red" variant="default" onClick={() => router.back()}>
+          Cancel
+        </Button>
         <Button type="submit">Save</Button>
       </Group>
     </Box>

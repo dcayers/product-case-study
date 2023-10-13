@@ -69,12 +69,12 @@ model ProductOrders {
 
 model ShippingInfo {
   id              String   @id @default(uuid())
-  trackingCompany String
-  trackingNumber  String
-  deliveryAddress String
-  contactName     String
-  contactNumber   String
-  contactEmail    String
+  trackingCompany String?
+  trackingNumber  String?
+  deliveryAddress String?
+  contactName     String?
+  contactNumber   String?
+  contactEmail    String?
   order           Order?
   deleted         Boolean? @default(false)
 
