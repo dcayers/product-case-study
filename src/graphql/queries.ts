@@ -4,6 +4,7 @@ export const ORDERS_QUERY = gql`
   query OrdersQuery {
     orders {
       id
+      orderNo
       status
       description
       updatedAt

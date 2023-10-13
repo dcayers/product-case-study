@@ -30,6 +30,7 @@
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.4",
     "graphql-yoga": "^4.0.5",
+    "nanoid": "^5.0.1",
     "next": "^13.5.4",
     "prisma": "^5.4.2",
     "react": "^18.2.0",

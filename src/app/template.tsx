@@ -12,7 +12,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
             height: 60,
             padding: '1rem'
           }}
-          
         >
           <Text
             size="xl"

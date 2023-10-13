@@ -13,7 +13,6 @@ import {
   Group,
   TextInput,
   Textarea,
-  NumberInput,
   Box,
   Flex,
   Tabs,
@@ -32,8 +31,6 @@ export function OrderForm({ orderId }: { orderId?: string }) {
       contactName: "",
       contactNumber: "",
       contactEmail: "",
-      trackingCompany: "",
-      trackingNumber: "",
       items: [{ name: "", quantity: 1, key: randomId() }],
     },
 
@@ -59,7 +56,7 @@ export function OrderForm({ orderId }: { orderId?: string }) {
       <Tabs
         defaultValue="order"
         style={{
-          minHeight: "780px",
+          minHeight: "530px",
         }}
       >
         <Tabs.List>
@@ -104,21 +101,6 @@ export function OrderForm({ orderId }: { orderId?: string }) {
               withAsterisk
               autoComplete="new-email"
               {...form.getInputProps("contactEmail")}
-            />
-            <Text size="xl">Tracking Details</Text>
-            <TextInput
-              label="Tracking Company"
-              placeholder="Tracking Company"
-              withAsterisk
-              autoComplete="new-company"
-              {...form.getInputProps("trackingCompany")}
-            />
-            <TextInput
-              label="Tracking Number"
-              placeholder="Tracking Number"
-              withAsterisk
-              autoComplete="new-tracking-number"
-              {...form.getInputProps("trackingNumber")}
             />
           </Flex>
         </Tabs.Panel>

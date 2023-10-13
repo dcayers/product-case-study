@@ -1,9 +1,11 @@
 import { OrderStatus } from "@prisma/client";
+import { generateOrderNo } from "@/lib/helpers/generateOrderNo";
 import { builder } from "../builder";
 
 builder.prismaObject("Order", {
   fields: (t) => ({
     id: t.exposeID("id"),
+    orderNo: t.exposeString("orderNo"),
     status: t.expose("status", { type: Status }),
     description: t.exposeString("description", { nullable: true }),
     products: t.relation("products", { nullable: true }),
@@ -11,7 +13,6 @@ builder.prismaObject("Order", {
     shippingInfoId: t.exposeString("shippingInfoId", { nullable: true }),
     createdAt: t.expose("createdAt", { type: "Date", nullable: true }),
     updatedAt: t.expose("updatedAt", { type: "Date", nullable: true }),
-    productsInOrder: t.relationCount("products"),
   }),
 });
 
@@ -39,7 +40,11 @@ builder.mutationField("createDraftOrder", (t) =>
   t.prismaField({
     type: "Order",
     resolve: async () => {
-      return prisma.order.create({});
+      return prisma.order.create({
+        data: {
+          orderNo: generateOrderNo(),
+        },
+      });
     },
   })
 );

@@ -23,6 +23,7 @@ async function main() {
 
   await prisma.order.create({
     data: {
+      orderNo: 'PCS-TEST04',
       status: "Draft" as OrderStatus,
       description: "Draft Order Test"
     },
