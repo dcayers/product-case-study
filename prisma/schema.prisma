@@ -25,6 +25,7 @@ model Product {
   orders      ProductOrders[]
   createdAt   DateTime?       @default(now())
   updatedAt   DateTime?       @updatedAt
+  deleted     Boolean?        @default(false)
 
   @@map("product")
 }
@@ -50,6 +51,7 @@ model Order {
   shippingInfoId String?         @unique()
   createdAt      DateTime?       @default(now())
   updatedAt      DateTime?       @updatedAt
+  deleted        Boolean?        @default(false)
 
   @@map("orders")
 }
@@ -66,7 +68,7 @@ model ProductOrders {
 }
 
 model ShippingInfo {
-  id              String @id @default(uuid())
+  id              String   @id @default(uuid())
   trackingCompany String
   trackingNumber  String
   deliveryAddress String
@@ -74,6 +76,7 @@ model ShippingInfo {
   contactNumber   String
   contactEmail    String
   order           Order?
+  deleted         Boolean? @default(false)
 
   @@map("shipping_info")
 }

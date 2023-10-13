@@ -32,7 +32,8 @@ const Status = builder.enumType("OrderStatus", {
 builder.queryField("orders", (t) =>
   t.prismaField({
     type: ["Order"],
-    resolve: (query) => prisma.order.findMany({ ...query }),
+    resolve: (query) =>
+      prisma.order.findMany({ ...query, where: { deleted: false } }),
   })
 );
 
@@ -100,6 +101,24 @@ builder.mutationField("publishOrder", (t) =>
         where: { id },
         data: {
           status: "Received",
+        },
+      });
+    },
+  })
+);
+
+builder.mutationField("deleteDraftOrder", (t) =>
+  t.prismaField({
+    type: "Order",
+    args: {
+      orderNo: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _parent, { orderNo }) => {
+      return prisma.order.update({
+        ...query,
+        where: { orderNo },
+        data: {
+          deleted: true,
         },
       });
     },
