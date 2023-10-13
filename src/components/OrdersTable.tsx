@@ -9,11 +9,7 @@ import {
 } from "@tabler/icons-react";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { formatDate, toServerDate } from "@/lib/helpers/formatDate";
-import { Order, Product } from "@prisma/client";
-
-interface FullOrder extends Order {
-  products: Product[];
-}
+import { FullOrder } from "@/types";
 
 export function OrdersTable({ orders }: { orders: FullOrder[] }) {
   return (

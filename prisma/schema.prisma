@@ -43,7 +43,7 @@ enum OrderStatus {
 
 model Order {
   id             String          @id @default(uuid())
-  status         OrderStatus     @default(Received)
+  status         OrderStatus     @default(Draft)
   orderNo        String          @unique()
   description    String?
   products       ProductOrders[]

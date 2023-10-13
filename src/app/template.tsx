@@ -10,7 +10,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
           gap="md"
           style={{
             height: 60,
-            padding: '1rem'
+            padding: "1rem",
           }}
         >
           <Text

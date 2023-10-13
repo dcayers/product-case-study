@@ -22,8 +22,9 @@ import {
 import { randomId } from "@mantine/hooks";
 import { usePlacesWidget } from "react-google-autocomplete";
 import { ProductAdder } from "./ProductAdder";
+import { FullOrder } from "@/types";
 
-export function OrderForm({ orderId }: { orderId?: string }) {
+export function OrderForm({ order }: { order: Partial<FullOrder> }) {
   const form = useForm({
     initialValues: {
       description: "",
@@ -50,9 +51,13 @@ export function OrderForm({ orderId }: { orderId?: string }) {
   });
 
   return (
-    <Box component="form" onSubmit={form.onSubmit((data) => {
-      console.log(data)
-    })} autoComplete="off">
+    <Box
+      component="form"
+      onSubmit={form.onSubmit((data) => {
+        console.log(data);
+      })}
+      autoComplete="off"
+    >
       <Tabs
         defaultValue="order"
         style={{
@@ -105,38 +110,37 @@ export function OrderForm({ orderId }: { orderId?: string }) {
           </Flex>
         </Tabs.Panel>
         <Tabs.Panel value="items" p={12}>
-          <Text size="xl" mb={16}>Items</Text>
+          <Text size="xl" mb={16}>
+            Items
+          </Text>
           <ScrollArea>
             <Flex direction="column" gap={16}>
-              {
-                form.values.items.map((item, index) => (
-                  <ProductAdder
-                    onAdd={(value, quantity) => {
-                      console.log(value, quantity);
-                    }}
-                    onRemoveClick={() => {
-                      form.removeListItem('items', index)
-                    }}
-                    key={item.key}
-                  />
-
-                ))
-              }
+              {form.values.items.map((item, index) => (
+                <ProductAdder
+                  onAdd={(value, quantity) => {
+                    console.log(value, quantity);
+                  }}
+                  onRemoveClick={() => {
+                    form.removeListItem("items", index);
+                  }}
+                  key={item.key}
+                />
+              ))}
             </Flex>
           </ScrollArea>
-            <Center mt={16}>
-              <Button
-                onClick={() =>
-                  form.insertListItem("items", {
-                    name: "",
-                    quantity: 1,
-                    key: randomId(),
-                  })
-                }
-              >
-                Add Item
-              </Button>
-            </Center>
+          <Center mt={16}>
+            <Button
+              onClick={() =>
+                form.insertListItem("items", {
+                  name: "",
+                  quantity: 1,
+                  key: randomId(),
+                })
+              }
+            >
+              Add Item
+            </Button>
+          </Center>
         </Tabs.Panel>
       </Tabs>
 

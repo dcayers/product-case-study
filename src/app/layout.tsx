@@ -1,6 +1,5 @@
 import "@mantine/core/styles.css";
 import { Inter } from "next/font/google";
-
 import { ColorSchemeScript } from "@mantine/core";
 import { Providers } from "@/lib/providers";
 
@@ -18,10 +17,12 @@ const inter = Inter({
 export default function RootLayout({
   children,
   order,
+  ...props
 }: {
   children: React.ReactNode;
   order: React.ReactNode;
 }) {
+  console.log(props);
   return (
     <html lang="en">
       <head>

@@ -5,9 +5,8 @@ import { OrdersTable } from "@/components/OrdersTable";
 import { getClient } from "@/lib/apolloClient";
 import { ORDERS_QUERY } from "@/graphql/queries";
 
-console.log(process.env.NEXT_PUBLIC_URL);
-
 export const dynamic = "force-dynamic";
+export const revalidate = 5;
 
 export default async function Page() {
   const { data } = await getClient().query({ query: ORDERS_QUERY });
@@ -19,7 +18,7 @@ export default async function Page() {
           variant="light"
           leftSection={<IconPhoto size={14} />}
           component={Link}
-          href="new"
+          href="/order/new"
           prefetch={false}
         >
           New Order
