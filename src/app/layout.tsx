@@ -16,11 +16,11 @@ const inter = Inter({
 
 export default function RootLayout({
   children,
-  order,
+  modal,
   ...props
 }: {
   children: React.ReactNode;
-  order: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   console.log(props);
   return (
@@ -31,7 +31,7 @@ export default function RootLayout({
       <body>
         <Providers>
           {children}
-          {order}
+          {modal}
         </Providers>
       </body>
     </html>

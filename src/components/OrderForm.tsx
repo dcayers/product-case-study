@@ -25,9 +25,16 @@ import { randomId } from "@mantine/hooks";
 import { usePlacesWidget } from "react-google-autocomplete";
 import { ProductAdder } from "./ProductAdder";
 import { FullOrder } from "@/types";
-import { UPDATE_DRAFT_ORDER } from "@/graphql/mutations";
+import {
+  REMOVE_PRODUCT_ORDER_MUTATION,
+  UPDATE_DRAFT_ORDER,
+} from "@/graphql/mutations";
 
-export function OrderForm({ order }: { order: Partial<FullOrder> }) {
+export function OrderForm({
+  order,
+}: {
+  order: PrettyPrint<PartialWithRequired<FullOrder, "id">>;
+}) {
   const router = useRouter();
   const form = useForm({
     initialValues: {
@@ -36,27 +43,49 @@ export function OrderForm({ order }: { order: Partial<FullOrder> }) {
       contactName: order.shipping?.contactName ?? "",
       contactNumber: order.shipping?.contactNumber ?? "",
       contactEmail: order.shipping?.contactEmail ?? "",
-      products: [{ name: "", quantity: 1, key: randomId() }],
+      products:
+        order.products && order.products.length > 0
+          ? order.products.map(
+              ({
+                quantity,
+                product: { id, name, quantity: productQuantity },
+              }) => ({
+                id,
+                quantity,
+                productQuantity,
+                name,
+                key: id,
+                saved: true,
+              })
+            )
+          : generateDefaultProduct(),
     },
-
     validate: {
       description: hasLength(
         { min: 2, max: 1000 },
         "Name must be 2-10 characters long"
       ),
-      contactEmail: isEmail("Please enter a valid email"),
+      contactEmail: (value) =>
+        (value.length > 0
+          ? isEmail("Please enter a valid email")
+          : null) as React.ReactNode,
     },
   });
 
   const { ref } = usePlacesWidget<HTMLInputElement>({
     apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY,
+    inputAutocompleteValue: "one-time-code",
     onPlaceSelected: (place) => {
-      console.log(place);
-      form.setFieldValue("deliveryAddress", place.formatted_address);
+      if (place.formatted_address) {
+        form.setFieldValue("deliveryAddress", place.formatted_address);
+      } else {
+        form.setFieldValue("deliveryAddress", place.name);
+      }
     },
   });
 
   const [updateDraftOrder] = useMutation(UPDATE_DRAFT_ORDER);
+  const [removeProductFromOrder] = useMutation(REMOVE_PRODUCT_ORDER_MUTATION);
 
   return (
     <Box
@@ -73,7 +102,7 @@ export function OrderForm({ order }: { order: Partial<FullOrder> }) {
 
         router.back();
       })}
-      autoComplete="off"
+      autoComplete="new"
     >
       <Tabs
         defaultValue="order"
@@ -100,7 +129,7 @@ export function OrderForm({ order }: { order: Partial<FullOrder> }) {
               label="Delivery Address"
               placeholder="17 Forest Hills Drive, Somewhere, VIC 3000"
               ref={ref}
-              autoComplete="new-street-address"
+              autoComplete="one-time-code"
               {...form.getInputProps("deliveryAddress")}
             />
             <TextInput
@@ -134,11 +163,43 @@ export function OrderForm({ order }: { order: Partial<FullOrder> }) {
             <Flex direction="column" gap={16}>
               {form.values.products.map((item, index) => (
                 <ProductAdder
-                  onAdd={(value, quantity) => {
-                    console.log(value, quantity);
+                  orderId={order.id}
+                  initialProduct={item}
+                  onAddClick={(product, quantity) => {
+                    console.log(product, quantity);
+                    // add product connection
+                    form.setFieldValue(`products.${index}`, {
+                      ...product,
+                      productQuantity: product.quantity,
+                      quantity,
+                      saved: true,
+                    });
+                    form.setFieldValue(`products.${index}.saved`, true);
                   }}
-                  onRemoveClick={() => {
-                    form.removeListItem("products", index);
+                  onProductChange={() => {
+                    if (item.saved) {
+                      form.setFieldValue(`products.${index}.id`, null);
+                      form.setFieldValue(`products.${index}.saved`, false);
+                    }
+                  }}
+                  onRemoveClick={async (product, quantity) => {
+                    // delete connection
+                    console.log(product, quantity);
+                    await removeProductFromOrder({
+                      variables: {
+                        id: order.id,
+                        productId: product.id,
+                        quantity,
+                      },
+                    });
+                    if (form.values.products.length === 1) {
+                      form.setFieldValue(
+                        "products.0",
+                        generateDefaultProduct()
+                      );
+                    } else {
+                      form.removeListItem("products", index);
+                    }
                   }}
                   key={item.key}
                 />
@@ -149,6 +210,7 @@ export function OrderForm({ order }: { order: Partial<FullOrder> }) {
             <Button
               onClick={() =>
                 form.insertListItem("products", {
+                  saved: false,
                   name: "",
                   quantity: 1,
                   key: randomId(),
@@ -162,11 +224,31 @@ export function OrderForm({ order }: { order: Partial<FullOrder> }) {
       </Tabs>
 
       <Group justify="flex-end" mt="md">
-        <Button color="red" variant="default" onClick={() => router.back()}>
-          Cancel
+        <Button
+          color="red"
+          variant="default"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          Close
         </Button>
-        <Button type="submit">Save</Button>
+        <Button type="submit" disabled={!form.isDirty()}>
+          Save
+        </Button>
       </Group>
     </Box>
   );
+}
+
+function generateDefaultProduct() {
+  return [
+    {
+      id: null,
+      saved: false,
+      name: "",
+      quantity: 1,
+      key: randomId(),
+    },
+  ];
 }

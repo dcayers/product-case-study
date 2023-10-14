@@ -11,12 +11,15 @@ export default function NewOrder({ params }: { params: { id: string } }) {
     variables: {
       orderNo: params.id,
     },
+    fetchPolicy: "no-cache",
   });
 
   return (
     <Modal
       opened={true}
-      onClose={() => router.back()}
+      onClose={() => {
+        router.back();
+      }}
       title={
         <Skeleton visible={loading}>
           Edit Order {data && data.getOrderByOrderNumber.orderNo}

@@ -24,7 +24,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
           </Text>
         </Flex>
       </AppShell.Header>
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main maw={1536}>{children}</AppShell.Main>
     </AppShell>
   );
 }

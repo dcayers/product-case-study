@@ -20,7 +20,9 @@ export default function NewOrder() {
   return (
     <Modal
       opened={true}
-      onClose={() => router.back()}
+      onClose={() => {
+        router.back();
+      }}
       title="Create New Order"
       size="xl"
     >
