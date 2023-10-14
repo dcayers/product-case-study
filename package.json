@@ -9,7 +9,9 @@
     "db:push": "prisma db push",
     "reset": "prisma migrate reset",
     "seed": "prisma db seed",
-    "vercel-build": "prisma generate --data-proxy --no-engine && prisma db push --accept-data-loss && prisma db seed && next build"
+    "vercel-build": "prisma generate --data-proxy --no-engine && prisma db push --accept-data-loss && prisma db seed && next build",
+    "lint": "next lint",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@apollo/client": "3.8.0-rc.2",
@@ -41,9 +43,14 @@
   "devDependencies": {
     "@types/node": "20.8.4",
     "@types/react": "18.2.28",
+    "eslint-config-next": "^13.5.4",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "postcss": "^8.4.31",
     "postcss-preset-mantine": "^1.8.0",
     "postcss-simple-vars": "^7.0.1",
+    "tsc-files": "^1.1.4",
     "typescript": "5.2.2"
   },
   "prisma": {
