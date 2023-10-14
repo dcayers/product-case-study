@@ -166,7 +166,6 @@ export function OrderForm({
                   orderId={order.id}
                   initialProduct={item}
                   onAddClick={(product, quantity) => {
-                    console.log(product, quantity);
                     // add product connection
                     form.setFieldValue(`products.${index}`, {
                       ...product,
@@ -184,7 +183,6 @@ export function OrderForm({
                   }}
                   onRemoveClick={async (product, quantity) => {
                     // delete connection
-                    console.log(product, quantity);
                     await removeProductFromOrder({
                       variables: {
                         id: order.id,

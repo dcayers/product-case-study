@@ -12,7 +12,6 @@ export default function NewOrder() {
     useMutation(CREATE_DRAFT_ORDER);
 
   useEffect(() => {
-    console.log(window);
     createDraftOrder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

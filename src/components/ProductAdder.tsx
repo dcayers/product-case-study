@@ -32,7 +32,6 @@ export function ProductAdder({
   onRemoveClick: (product: any, quantity: number) => void;
   onProductChange: () => void;
 }) {
-  // console.log(initialProduct);
   const [search, setSearch] = useState("");
   const [quantity, setQuantity] = useState(initialProduct.quantity ?? 1);
   const [productQuantity, setProductQuantity] = useState(
@@ -53,7 +52,6 @@ export function ProductAdder({
     onDropdownClose: () => {
       combobox.resetSelectedOption();
       combobox.focusTarget();
-      // console.log({ data });
       setSearch("");
     },
 
@@ -153,7 +151,6 @@ export function ProductAdder({
             },
           });
           setProductQuantity(res.data.addProductToOrder.quantity);
-          console.log(res.data);
           onAddClick(res.data.addProductToOrder, quantity);
         }}
         // disabled={!!product?.id}

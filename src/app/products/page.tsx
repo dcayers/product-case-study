@@ -11,7 +11,7 @@ export default async function ProductsPage() {
     query: SEARCH_PRODUCTS_QUERY,
     fetchPolicy: "no-cache",
   });
-  console.log(data);
+
   return (
     <Flex direction="column" gap="md">
       <Flex direction="column">
