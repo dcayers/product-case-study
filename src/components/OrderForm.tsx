@@ -1,14 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
-import {
-  useForm,
-  isNotEmpty,
-  isEmail,
-  isInRange,
-  hasLength,
-  matches,
-} from "@mantine/form";
+import { useForm, hasLength } from "@mantine/form";
 import {
   Text,
   Button,
@@ -64,7 +57,7 @@ export function OrderForm({
     validate: {
       description: hasLength(
         { min: 2, max: 1000 },
-        "Name must be 2-10 characters long"
+        "Description must be 2-1000 characters long"
       ),
       products: {
         saved: (value) => {
@@ -94,6 +87,8 @@ export function OrderForm({
   const [publishOrder, { data: publishOrderData, loading }] = useMutation(
     PUBLISH_ORDER_MUTATION
   );
+
+  console.log(publishOrderData);
 
   return (
     <Box
@@ -253,7 +248,7 @@ export function OrderForm({
             });
           }}
         >
-          Publish{(publishOrderData && !form.isDirty()) ?? "ed 🎉"}
+          Publish{publishOrderData && !form.isDirty() ? "ed 🎉" : ""}
         </Button>
       </Group>
     </Box>

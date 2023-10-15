@@ -1,0 +1,13 @@
+{
+  "id": "1",
+  "status": "Draft",
+  "orderNo": "TST-123456",
+  "description": "Test",
+  "shipping": {
+    "deliveryAddress": "",
+    "contactName": "",
+    "contactNumber": "",
+    "contactEmail": ""
+  },
+  "products": []
+}

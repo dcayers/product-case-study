@@ -12,6 +12,7 @@
     "vercel-build": "prisma generate --data-proxy --no-engine && prisma db push --accept-data-loss && prisma db seed && next build",
     "lint": "next lint",
     "check-types": "tsc --noEmit",
+    "cypress:open": "cypress open",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@types/node": "20.8.4",
     "@types/react": "18.2.28",
+    "cypress": "^13.3.1",
     "eslint-config-next": "^13.5.4",
     "eslint-config-prettier": "^9.0.0",
     "husky": "^8.0.3",
