@@ -12,6 +12,7 @@ export default function NewOrder() {
     useMutation(CREATE_DRAFT_ORDER);
 
   useEffect(() => {
+    // TODO: Prevent duplicate entry in local due to strict mode
     createDraftOrder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
