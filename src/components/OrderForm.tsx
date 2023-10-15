@@ -27,7 +27,8 @@ import { ProductAdder } from "./ProductAdder";
 import { FullOrder } from "@/types";
 import {
   REMOVE_PRODUCT_ORDER_MUTATION,
-  UPDATE_DRAFT_ORDER,
+  UPDATE_DRAFT_ORDER_MUTATION,
+  PUBLISH_ORDER_MUTATION,
 } from "@/graphql/mutations";
 
 export function OrderForm({
@@ -65,10 +66,14 @@ export function OrderForm({
         { min: 2, max: 1000 },
         "Name must be 2-10 characters long"
       ),
-      contactEmail: (value) =>
-        (value.length > 0
-          ? isEmail("Please enter a valid email")
-          : null) as React.ReactNode,
+      products: {
+        saved: (value) => {
+          if (value === undefined) return null;
+          return value === false
+            ? "Please save your products to this order"
+            : null;
+        },
+      },
     },
   });
 
@@ -84,8 +89,11 @@ export function OrderForm({
     },
   });
 
-  const [updateDraftOrder] = useMutation(UPDATE_DRAFT_ORDER);
+  const [updateDraftOrder] = useMutation(UPDATE_DRAFT_ORDER_MUTATION);
   const [removeProductFromOrder] = useMutation(REMOVE_PRODUCT_ORDER_MUTATION);
+  const [publishOrder, { data: publishOrderData, loading }] = useMutation(
+    PUBLISH_ORDER_MUTATION
+  );
 
   return (
     <Box
@@ -102,7 +110,7 @@ export function OrderForm({
 
         router.back();
       })}
-      autoComplete="new"
+      autoComplete="one-time-code"
     >
       <Tabs
         defaultValue="order"
@@ -129,27 +137,24 @@ export function OrderForm({
               label="Delivery Address"
               placeholder="17 Forest Hills Drive, Somewhere, VIC 3000"
               ref={ref}
-              autoComplete="one-time-code"
               {...form.getInputProps("deliveryAddress")}
+              autoComplete="new-name"
             />
             <TextInput
               label="Contact Name"
               placeholder="Contact Name"
-              withAsterisk
               autoComplete="new-name"
               {...form.getInputProps("contactName")}
             />
             <TextInput
               label="Contact Number"
               placeholder="Contact Number"
-              withAsterisk
               autoComplete="new-number"
               {...form.getInputProps("contactNumber")}
             />
             <TextInput
               label="Contact Email"
               placeholder="Contact Email"
-              withAsterisk
               autoComplete="new-email"
               {...form.getInputProps("contactEmail")}
             />
@@ -183,13 +188,15 @@ export function OrderForm({
                   }}
                   onRemoveClick={async (product, quantity) => {
                     // delete connection
-                    await removeProductFromOrder({
-                      variables: {
-                        id: order.id,
-                        productId: product.id,
-                        quantity,
-                      },
-                    });
+                    if (product.id) {
+                      await removeProductFromOrder({
+                        variables: {
+                          id: order.id,
+                          productId: product.id,
+                          quantity,
+                        },
+                      });
+                    }
                     if (form.values.products.length === 1) {
                       form.setFieldValue(
                         "products.0",
@@ -233,6 +240,20 @@ export function OrderForm({
         </Button>
         <Button type="submit" disabled={!form.isDirty()}>
           Save
+        </Button>
+        <Button
+          color={"pcsPurple"}
+          loaderProps={{ type: "bars" }}
+          loading={loading}
+          onClick={() => {
+            publishOrder({
+              variables: {
+                orderNo: order.orderNo,
+              },
+            });
+          }}
+        >
+          Publish{(publishOrderData && !form.isDirty()) ?? "ed 🎉"}
         </Button>
       </Group>
     </Box>

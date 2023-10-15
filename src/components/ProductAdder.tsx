@@ -142,6 +142,7 @@ export function ProductAdder({
         loading={addProductLoading}
         loaderProps={{ type: "dots" }}
         onClick={async () => {
+          console.log(product);
           if (!product) return;
           const res = await addProductToOrder({
             variables: {

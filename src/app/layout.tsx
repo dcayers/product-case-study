@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 import {
@@ -25,7 +26,6 @@ const inter = Inter({
 export default function RootLayout({
   children,
   modal,
-  ...props
 }: {
   children: React.ReactNode;
   modal: React.ReactNode;

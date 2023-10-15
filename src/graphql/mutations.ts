@@ -1,9 +1,10 @@
 import { gql } from "@apollo/client";
+import { ORDER_QUERY_FRAGMENT } from "./fragments";
 
 /**
  * Creates a new draft order for the user to update details against
  */
-export const CREATE_DRAFT_ORDER = gql`
+export const CREATE_DRAFT_ORDER_MUTATION = gql`
   mutation CreateDraftOrder {
     createDraftOrder {
       id
@@ -15,7 +16,7 @@ export const CREATE_DRAFT_ORDER = gql`
   }
 `;
 
-export const UPDATE_DRAFT_ORDER = gql`
+export const UPDATE_DRAFT_ORDER_MUTATION = gql`
   mutation UpdateDraftOrder($input: UpdateOrderInput!) {
     updateDraftOrder(input: $input) {
       orderNo
@@ -32,8 +33,35 @@ export const UPDATE_DRAFT_ORDER = gql`
   }
 `;
 
+export const DELETE_DRAFT_ORDER_MUTATION = gql`
+  mutation DeleteDraftOrder($orderNo: String!) {
+    deleteDraftOrder(orderNo: $orderNo) {
+      id
+      orderNo
+    }
+  }
+`;
+
+export const CANCEL_ORDER_MUTATION = gql`
+  mutation cancelOrder($orderNo: String!) {
+    cancelOrder(orderNo: $orderNo) {
+      id
+      orderNo
+    }
+  }
+`;
+
+export const PUBLISH_ORDER_MUTATION = gql`
+  mutation PublishOrder($orderNo: String!) {
+    publishOrder(orderNo: $orderNo) {
+      id
+      orderNo
+    }
+  }
+`;
+
 export const UPDATE_TRACKING_DETAILS_MUTATION = gql`
-  mutation UpdateTrackingDetails($input: UpdateTrackingDetailsInput) {
+  mutation UpdateTrackingDetails($input: UpdateTrackingDetailsInput!) {
     udpateTrackingDetails(input: $input) {
       id
       orderNo
@@ -42,6 +70,15 @@ export const UPDATE_TRACKING_DETAILS_MUTATION = gql`
         trackingNumber
       }
       status
+    }
+  }
+`;
+
+export const UPDATE_ORDER_STATUS_MUTATION = gql`
+  ${ORDER_QUERY_FRAGMENT}
+  mutation UpdateOrderStatus($orderNo: String!, $status: String!) {
+    updateOrderStatus(orderNo: $orderNo, status: $status) {
+      ...CoreOrderFields
     }
   }
 `;

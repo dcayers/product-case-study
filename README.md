@@ -1,13 +1,81 @@
-# GitHub Codespaces ♥️ Next.js
+# Product Case Study
 
-Welcome to your shiny new Codespace running Next.js! We've got everything fired up and running for you to explore Next.js.
+A (not-so) simple Product and Order Management system.
 
-You've got a blank canvas to work on from a git perspective as well. There's a single initial commit with the what you're seeing right now - where you go from here is up to you!
+## Getting Started
 
-Everything you do here is contained within this one codespace. There is no repository on GitHub yet. If and when you’re ready you can click "Publish Branch" and we’ll create your repository and push up your project. If you were just exploring then and have no further need for this code then you can simply delete your codespace and it's gone forever.
+### Prereqs
 
-To run this application:
+Create a .env file with the following variables
 
+```env
+## The url to your postgres db...
+PRISMA_DB=""
+
+## direct url to postgres db. locally can be same as PRISMA_DB
+POSTGRES_URL_NON_POOLING=""
+
+## Used for querying the GQL BE
+NEXT_PUBLIC_URL="http://localhost:3000"
+
+## Maps API Key. Not required
+NEXT_PUBLIC_GOOGLE_MAPS_KEY=""
 ```
-npm run dev
+
+### Install
+
+```sh
+pnpm i
 ```
+
+### Seed DB
+
+```sh
+  pnpm db:push
+```
+
+### Run
+
+```sh
+pnpm dev
+```
+
+### Visit the site
+
+```web
+http://localhost:3000
+```
+
+### Make some GQL Queries
+
+```web
+http://localhost:3000/api/graphql
+```
+
+## Tech
+
+### Frontend
+
+- Next.js 13 (the one with the app router...)
+- Mantine (Core, Forms, Notifications, Modals)
+- Tabler Icons
+- date-fns
+- Apollo Client
+
+### Backend
+
+- Next.js 13 (because API routes are cool)
+- GraphQL Yoga
+- Prisma
+- Pothos + Prisma Plugin
+- Vercel Postgres DB
+
+### Hosting
+
+- Vercel
+
+### Integrations
+
+- Auth0
+- Google Maps API
+- Prisma Accelerate

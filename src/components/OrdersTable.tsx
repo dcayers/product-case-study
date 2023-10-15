@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Table,
   ActionIcon,
@@ -13,6 +13,9 @@ import {
   Text,
   Loader,
   Pagination,
+  Select,
+  Box,
+  LoadingOverlay,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
@@ -31,8 +34,15 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { formatDate, toServerDate } from "@/lib/helpers/formatDate";
 import { FullOrder } from "@/types";
 import { SEARCH_ORDERS_QUERY } from "@/graphql/queries";
-import classes from "@/lib/theme/css/table.module.css";
 import { AVAILABLE_TO_IN_TRANSIT } from "@/lib/helpers/constants";
+import { generateStatusOptions } from "@/lib/helpers/generateStatusOptions";
+import classes from "@/lib/theme/css/table.module.css";
+import { sumProductPrice } from "@/lib/helpers/sumProductPrice";
+import {
+  CANCEL_ORDER_MUTATION,
+  DELETE_DRAFT_ORDER_MUTATION,
+  UPDATE_ORDER_STATUS_MUTATION,
+} from "@/graphql/mutations";
 
 export function OrdersTable({
   orders: initialOrders,
@@ -44,7 +54,18 @@ export function OrdersTable({
   const [sortByField, setSortByField] = useState<string | null>(null);
   const [shouldReverseSort, setSortReversal] = useState(false);
   const [debouncedSearch] = useDebouncedValue(search, 200);
-  const [getOrders, { loading }] = useLazyQuery(SEARCH_ORDERS_QUERY);
+  const [getOrders, { loading }] = useLazyQuery(SEARCH_ORDERS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+  const [updateOrderStatus, { loading: updateStatusLoading }] = useMutation(
+    UPDATE_ORDER_STATUS_MUTATION
+  );
+  const [deleteDraftOrder, { loading: deleteDraftLoading }] = useMutation(
+    DELETE_DRAFT_ORDER_MUTATION
+  );
+  const [cancelOrder, { loading: cancelOrderLoading }] = useMutation(
+    CANCEL_ORDER_MUTATION
+  );
 
   useEffect(() => {
     const sortBy: Record<string, boolean> = {};
@@ -53,7 +74,10 @@ export function OrdersTable({
       sortBy[sortByField] = shouldReverseSort;
     }
 
-    if (debouncedSearch !== null || sortByField) {
+    const isMutationLoading =
+      updateStatusLoading || deleteDraftLoading || cancelOrderLoading;
+
+    if (debouncedSearch !== null || sortByField || isMutationLoading) {
       if (!sortByField) {
         sortBy["sortUpdated"] = false;
       }
@@ -69,7 +93,15 @@ export function OrdersTable({
         },
       });
     }
-  }, [getOrders, sortByField, shouldReverseSort, debouncedSearch]);
+  }, [
+    getOrders,
+    sortByField,
+    shouldReverseSort,
+    debouncedSearch,
+    updateStatusLoading,
+    deleteDraftLoading,
+    cancelOrderLoading,
+  ]);
 
   const handleSearchChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -113,109 +145,151 @@ export function OrdersTable({
         value={search ?? ""}
         onChange={handleSearchChange}
       />
-      <Table>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Order No.</Table.Th>
-            <Table.Th>Description</Table.Th>
-            <Table.Th>Item Count</Table.Th>
-            <SortableHeader
-              sorted={sortByField === "sortCreated"}
-              reversed={shouldReverseSort}
-              onSort={() => handleSortChange("sortCreated")}
-            >
-              Created
-            </SortableHeader>
-            <SortableHeader
-              sorted={sortByField === "sortUpdated"}
-              reversed={shouldReverseSort}
-              onSort={() => handleSortChange("sortUpdated")}
-            >
-              Last Updated
-            </SortableHeader>
-            <SortableHeader
-              sorted={sortByField === "sortStatus"}
-              reversed={shouldReverseSort}
-              onSort={() => handleSortChange("sortStatus")}
-            >
-              Status
-            </SortableHeader>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {orders.map((order) => (
-            <Table.Tr key={order.id}>
-              <Table.Td>{order.orderNo}</Table.Td>
-              <Table.Td>
-                {order.description ?? (
-                  <Text c="orange">
-                    <IconAlertTriangle
-                      size={16}
-                      style={{ verticalAlign: "middle" }}
-                    />{" "}
-                    Unedited Draft
-                  </Text>
-                )}
-              </Table.Td>
-              <Table.Td>{order.products.length}</Table.Td>
-              <Table.Td>
-                {formatDate(new Date(order.createdAt!), "dd-MM-yyyy p")}
-              </Table.Td>
-              <Table.Td>
-                {formatDistanceToNow(toServerDate(order.updatedAt!))} ago
-              </Table.Td>
-              <Table.Td>{order.status}</Table.Td>
-              <Table.Td>
-                <Group>
-                  <ActionIcon
-                    variant="subtle"
-                    size="lg"
-                    aria-label={`Edit Order ${order.orderNo}`}
-                    loaderProps={{ type: "dots" }}
-                    component={Link}
-                    href={`/order/${order.orderNo}/edit`}
-                  >
-                    <IconPencil />
-                  </ActionIcon>
-                  <ActionIcon
-                    variant="subtle"
-                    size="lg"
-                    aria-label="Add Tracking Details"
-                    component={Link}
-                    href={`/order/${order.orderNo}/tracking`}
-                    // disabled={!AVAILABLE_TO_IN_TRANSIT.includes(order.status)}
-                  >
-                    <IconTruckDelivery
-                      style={{ width: rem(24), height: rem(24) }}
-                    />
-                  </ActionIcon>
-                  {order.status === "Draft" ? (
-                    <ActionIcon
-                      size="sm"
-                      aria-label={`Delete Order ${order.orderNo}`}
-                      color="red"
-                      variant="subtle"
-                      radius="lg"
-                    >
-                      <IconTrash />
-                    </ActionIcon>
-                  ) : (
-                    <ActionIcon
-                      size="sm"
-                      aria-label={`Cancel Order ${order.orderNo}`}
-                      color="red"
-                      variant="subtle"
-                      radius="lg"
-                    >
-                      <IconBan />
-                    </ActionIcon>
-                  )}
-                </Group>
-              </Table.Td>
+      <Box pos="relative">
+        <LoadingOverlay
+          visible={loading}
+          zIndex={1000}
+          overlayProps={{ radius: "sm", blur: 2 }}
+        />
+        <Table highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Order No.</Table.Th>
+              <Table.Th>Description</Table.Th>
+              <Table.Th>Items/Total</Table.Th>
+              <SortableHeader
+                sorted={sortByField === "sortCreated"}
+                reversed={shouldReverseSort}
+                onSort={() => handleSortChange("sortCreated")}
+              >
+                Created
+              </SortableHeader>
+              <SortableHeader
+                sorted={sortByField === "sortUpdated"}
+                reversed={shouldReverseSort}
+                onSort={() => handleSortChange("sortUpdated")}
+              >
+                Last Updated
+              </SortableHeader>
+              <SortableHeader
+                sorted={sortByField === "sortStatus"}
+                reversed={shouldReverseSort}
+                onSort={() => handleSortChange("sortStatus")}
+              >
+                Status
+              </SortableHeader>
             </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+          </Table.Thead>
+          <Table.Tbody>
+            {orders.map((order) => (
+              <Table.Tr key={order.id}>
+                <Table.Td>{order.orderNo}</Table.Td>
+                <Table.Td>
+                  {order.description ?? (
+                    <Text c="orange">
+                      <IconAlertTriangle
+                        size={16}
+                        style={{ verticalAlign: "middle" }}
+                      />{" "}
+                      Unedited Draft
+                    </Text>
+                  )}
+                </Table.Td>
+                <Table.Td>
+                  {order.products.length} prod / $
+                  {sumProductPrice(order.products)}
+                </Table.Td>
+                <Table.Td w="12rem">
+                  {formatDate(new Date(order.createdAt!), "dd-MM-yyyy p")}
+                </Table.Td>
+                <Table.Td w="12rem">
+                  {formatDistanceToNow(toServerDate(order.updatedAt!))} ago
+                </Table.Td>
+                <Table.Td maw="9rem">
+                  <Select
+                    maw={"12rem"}
+                    value={order.status}
+                    data={generateStatusOptions(order.status)}
+                    disabled={["Draft", "Cancelled"].includes(order.status)}
+                    onChange={(value) => {
+                      updateOrderStatus({
+                        variables: {
+                          orderNo: order.orderNo,
+                          status: value,
+                        },
+                      });
+                    }}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Group>
+                    <ActionIcon
+                      variant="subtle"
+                      size="lg"
+                      aria-label={`Edit Order ${order.orderNo}`}
+                      loaderProps={{ type: "dots" }}
+                      component={Link}
+                      href={`/order/${order.orderNo}/edit`}
+                      disabled={order.status === "Cancelled"}
+                    >
+                      <IconPencil />
+                    </ActionIcon>
+                    <ActionIcon
+                      variant="subtle"
+                      size="lg"
+                      aria-label="Add Tracking Details"
+                      component={Link}
+                      href={`/order/${order.orderNo}/tracking`}
+                      disabled={!AVAILABLE_TO_IN_TRANSIT.includes(order.status)}
+                    >
+                      <IconTruckDelivery
+                        style={{ width: rem(24), height: rem(24) }}
+                      />
+                    </ActionIcon>
+                    {order.status === "Draft" ? (
+                      <ActionIcon
+                        size="sm"
+                        aria-label={`Delete Order ${order.orderNo}`}
+                        color="red"
+                        variant="subtle"
+                        radius="lg"
+                        onClick={() => {
+                          deleteDraftOrder({
+                            variables: {
+                              orderNo: order.orderNo,
+                            },
+                          });
+                        }}
+                      >
+                        <IconTrash />
+                      </ActionIcon>
+                    ) : (
+                      <ActionIcon
+                        size="sm"
+                        aria-label={`Cancel Order ${order.orderNo}`}
+                        color="red"
+                        variant="subtle"
+                        radius="lg"
+                        onClick={() => {
+                          cancelOrder({
+                            variables: {
+                              orderNo: order.orderNo,
+                            },
+                          });
+                        }}
+                        disabled={order.status === "Cancelled"}
+                      >
+                        <IconBan />
+                      </ActionIcon>
+                    )}
+                  </Group>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Box>
+
       <Center>
         <Pagination total={20} siblings={1} defaultValue={1} />
       </Center>

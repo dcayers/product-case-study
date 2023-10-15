@@ -3,10 +3,8 @@ import { ThemeProvider } from "./ThemeProvider";
 
 export function Providers({ children }: React.PropsWithChildren) {
   return (
-    <ApolloProvider>
-      <ThemeProvider>
-        {children}
-      </ThemeProvider>
-    </ApolloProvider>
-  )
+    <ThemeProvider>
+      <ApolloProvider>{children}</ApolloProvider>
+    </ThemeProvider>
+  );
 }

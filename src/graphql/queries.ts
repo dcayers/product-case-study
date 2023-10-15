@@ -1,49 +1,11 @@
 import { gql } from "@apollo/client";
-
-const ORDER_QUERY_FRAGMENT = gql`
-  fragment CoreOrderFields on Order {
-    id
-    orderNo
-    status
-    description
-    updatedAt
-    createdAt
-    products {
-      product {
-        createdAt
-        description
-        id
-        name
-        price
-        quantity
-        updatedAt
-      }
-      quantity
-    }
-  }
-`;
+import { ORDER_QUERY_FRAGMENT } from "./fragments";
 
 export const ORDERS_QUERY = gql`
+  ${ORDER_QUERY_FRAGMENT}
   query OrdersQuery {
     orders {
-      id
-      orderNo
-      status
-      description
-      updatedAt
-      createdAt
-      products {
-        product {
-          createdAt
-          description
-          id
-          name
-          price
-          quantity
-          updatedAt
-        }
-        quantity
-      }
+      ...CoreOrderFields
     }
   }
 `;
@@ -58,19 +20,10 @@ export const SEARCH_ORDERS_QUERY = gql`
 `;
 
 export const ORDERS_BY_ORDER_NO_QUERY = gql`
+  ${ORDER_QUERY_FRAGMENT}
   query GetOrderByOrderNo($orderNo: String!) {
     getOrderByOrderNumber(orderNo: $orderNo) {
-      id
-      orderNo
-      description
-      products {
-        quantity
-        product {
-          id
-          name
-          quantity
-        }
-      }
+      ...CoreOrderFields
       shipping {
         contactEmail
         contactName

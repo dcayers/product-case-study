@@ -1,4 +1,11 @@
-import { OrderStatus, Prisma } from "@prisma/client";
+import { GraphQLError } from "graphql";
+import {
+  Order,
+  OrderStatus,
+  Prisma,
+  Product,
+  ShippingInfo,
+} from "@prisma/client";
 import { generateOrderNo } from "@/lib/helpers/generateOrderNo";
 import { builder } from "../builder";
 import { generateSearchString } from "@/lib/helpers/generateSearchString";
@@ -105,6 +112,7 @@ builder.queryField("getOrderByOrderNumber", (t) =>
         ...query,
         where: {
           orderNo,
+          deleted: false,
         },
       });
     },
@@ -163,6 +171,7 @@ builder.mutationField("updateDraftOrder", (t) =>
         ...query,
         where: {
           orderNo,
+          deleted: false,
         },
         data: {
           description,
@@ -177,12 +186,14 @@ builder.mutationField("publishOrder", (t) =>
   t.prismaField({
     type: "Order",
     args: {
-      id: t.arg.string({ required: true }),
+      orderNo: t.arg.string({ required: true }),
     },
-    resolve: async (query, _parent, { id, ...args }) => {
+    resolve: async (query, _parent, { orderNo }) => {
+      //TODO: Check that the order has all the details it needs.
+
       return prisma.order.update({
         ...query,
-        where: { id },
+        where: { orderNo, deleted: false },
         data: {
           status: "Received",
         },
@@ -200,7 +211,7 @@ builder.mutationField("deleteDraftOrder", (t) =>
     resolve: async (query, _parent, { orderNo }) => {
       return prisma.order.update({
         ...query,
-        where: { orderNo },
+        where: { orderNo, deleted: false, status: "Draft" },
         data: {
           deleted: true,
         },
@@ -213,16 +224,17 @@ builder.mutationField("cancelOrder", (t) =>
   t.prismaField({
     type: "Order",
     args: {
-      id: t.arg.string({ required: true }),
+      orderNo: t.arg.string({ required: true }),
     },
-    resolve: async (query, _parent, { id, ...args }) => {
+    resolve: async (query, _parent, { orderNo, ...args }) => {
       // get products
       const orderProducts = await prisma.order.findFirst({
         select: {
           products: true,
         },
         where: {
-          id,
+          orderNo,
+          deleted: false,
         },
       });
 
@@ -246,7 +258,7 @@ builder.mutationField("cancelOrder", (t) =>
 
       return prisma.order.update({
         ...query,
-        where: { id },
+        where: { orderNo, deleted: false },
         data: {
           status: "Cancelled",
           products: {
@@ -262,15 +274,15 @@ builder.mutationField("updateOrderStatus", (t) =>
   t.prismaField({
     type: "Order",
     args: {
-      id: t.arg.string({ required: true }),
+      orderNo: t.arg.string({ required: true }),
       status: t.arg.string({ required: true }),
     },
-    resolve: async (query, _parent, { id, ...args }) => {
+    resolve: async (query, _parent, { orderNo, status }) => {
       return prisma.order.update({
         ...query,
-        where: { id },
+        where: { orderNo, deleted: false },
         data: {
-          status: args.status as OrderStatus,
+          status: status as OrderStatus,
         },
       });
     },
@@ -295,20 +307,26 @@ builder.mutationField("udpateTrackingDetails", (t) =>
       input: t.arg({ type: UpdateTrackingDetailsInput, required: true }),
     },
     resolve: async (query, _parent, { input: { orderNo, ...args } }) => {
+      if (orderNo === "PCS-TEST01") {
+        throw new GraphQLError("PCS-TEST01 blocked from transit");
+      }
       const order = await prisma.order.findUnique({
         where: {
           orderNo,
+          deleted: false,
         },
       });
 
       // TODO: Throw error if order not in desired state
-      if (AVAILABLE_TO_IN_TRANSIT.includes(order?.status ?? "")) {
-        throw new Error("Cannot transition to InTransit");
+      if (!AVAILABLE_TO_IN_TRANSIT.includes(order?.status ?? "")) {
+        throw new GraphQLError(
+          `Cannot transition to InTransit from ${order?.status}`
+        );
       }
 
       return prisma.order.update({
         ...query,
-        where: { orderNo },
+        where: { orderNo, deleted: false },
         data: {
           status: "InTransit",
           shipping: {
@@ -333,7 +351,7 @@ builder.mutationField("removeProductFromOrder", (t) =>
     resolve: async (query, _parent, { id, ...args }) => {
       const order = await prisma.order.update({
         ...query,
-        where: { id },
+        where: { id, deleted: false },
         data: {
           products: {
             delete: {
@@ -342,9 +360,6 @@ builder.mutationField("removeProductFromOrder", (t) =>
                 orderId: id,
               },
             },
-            // disconnect: [
-            //   { productId_orderId: { productId: args.productId, orderId: id } },
-            // ],
           },
         },
       });

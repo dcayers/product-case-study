@@ -32,7 +32,9 @@ export function TrackingForm({
     },
   });
 
-  const [updateTrackingDetails] = useMutation(UPDATE_TRACKING_DETAILS_MUTATION);
+  const [updateTrackingDetails, { error }] = useMutation(
+    UPDATE_TRACKING_DETAILS_MUTATION
+  );
 
   return (
     <Box
