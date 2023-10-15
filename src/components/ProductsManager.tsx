@@ -14,8 +14,9 @@ import {
   Flex,
   Button,
   Space,
-  Transition,
   Modal,
+  Pagination,
+  Center,
 } from "@mantine/core";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { Product } from "@prisma/client";
@@ -147,6 +148,9 @@ export function ProductsManager({ initialProducts }: ProductsManagerArgs) {
           ))}
         </Table.Tbody>
       </Table>
+      <Center>
+        <Pagination total={20} siblings={1} defaultValue={1} />
+      </Center>
     </div>
   );
 }

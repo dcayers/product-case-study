@@ -12,6 +12,7 @@ import {
   UnstyledButton,
   Text,
   Loader,
+  Pagination,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
@@ -31,6 +32,7 @@ import { formatDate, toServerDate } from "@/lib/helpers/formatDate";
 import { FullOrder } from "@/types";
 import { SEARCH_ORDERS_QUERY } from "@/graphql/queries";
 import classes from "@/lib/theme/css/table.module.css";
+import { AVAILABLE_TO_IN_TRANSIT } from "@/lib/helpers/constants";
 
 export function OrdersTable({
   orders: initialOrders,
@@ -181,6 +183,7 @@ export function OrdersTable({
                     aria-label="Add Tracking Details"
                     component={Link}
                     href={`/order/${order.orderNo}/tracking`}
+                    // disabled={!AVAILABLE_TO_IN_TRANSIT.includes(order.status)}
                   >
                     <IconTruckDelivery
                       style={{ width: rem(24), height: rem(24) }}
@@ -213,6 +216,9 @@ export function OrdersTable({
           ))}
         </Table.Tbody>
       </Table>
+      <Center>
+        <Pagination total={20} siblings={1} defaultValue={1} />
+      </Center>
     </>
   );
 }

@@ -2,6 +2,7 @@ import { OrderStatus, Prisma } from "@prisma/client";
 import { generateOrderNo } from "@/lib/helpers/generateOrderNo";
 import { builder } from "../builder";
 import { generateSearchString } from "@/lib/helpers/generateSearchString";
+import { AVAILABLE_TO_IN_TRANSIT } from "@/lib/helpers/constants";
 
 builder.prismaObject("Order", {
   fields: (t) => ({
@@ -24,6 +25,7 @@ const Status = builder.enumType("OrderStatus", {
     "Delivered",
     "Draft",
     "InTransit",
+    "Picked",
     "Picking",
     "Processing",
     "Received",
@@ -275,43 +277,40 @@ builder.mutationField("updateOrderStatus", (t) =>
   })
 );
 
-builder.mutationField("addTrackingDetails", (t) =>
-  t.prismaField({
-    type: "Order",
-    args: {
-      id: t.arg.string({ required: true }),
-      trackingCompany: t.arg.string({ required: true }),
-      trackingNumber: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _parent, { id, ...args }) => {
-      return prisma.order.update({
-        ...query,
-        where: { id },
-        data: {
-          shipping: {
-            update: {
-              ...args,
-            },
-          },
-        },
-      });
-    },
-  })
+const UpdateTrackingDetailsInput = builder.inputType(
+  "UpdateTrackingDetailsInput",
+  {
+    fields: (t) => ({
+      orderNo: t.string({ required: true }),
+      trackingCompany: t.string({ required: true }),
+      trackingNumber: t.string({ required: true }),
+    }),
+  }
 );
 
-builder.mutationField("ammendShippingDetails", (t) =>
+builder.mutationField("udpateTrackingDetails", (t) =>
   t.prismaField({
     type: "Order",
     args: {
-      id: t.arg.string({ required: true }),
-      trackingCompany: t.arg.string({ required: true }),
-      trackingNumber: t.arg.string({ required: true }),
+      input: t.arg({ type: UpdateTrackingDetailsInput, required: true }),
     },
-    resolve: async (query, _parent, { id, ...args }) => {
+    resolve: async (query, _parent, { input: { orderNo, ...args } }) => {
+      const order = await prisma.order.findUnique({
+        where: {
+          orderNo,
+        },
+      });
+
+      // TODO: Throw error if order not in desired state
+      if (AVAILABLE_TO_IN_TRANSIT.includes(order?.status ?? "")) {
+        throw new Error("Cannot transition to InTransit");
+      }
+
       return prisma.order.update({
         ...query,
-        where: { id },
+        where: { orderNo },
         data: {
+          status: "InTransit",
           shipping: {
             update: {
               ...args,

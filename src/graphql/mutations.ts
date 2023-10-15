@@ -32,6 +32,20 @@ export const UPDATE_DRAFT_ORDER = gql`
   }
 `;
 
+export const UPDATE_TRACKING_DETAILS_MUTATION = gql`
+  mutation UpdateTrackingDetails($input: UpdateTrackingDetailsInput) {
+    udpateTrackingDetails(input: $input) {
+      id
+      orderNo
+      shipping {
+        trackingCompany
+        trackingNumber
+      }
+      status
+    }
+  }
+`;
+
 export const ADD_PRODUCT_ORDER_MUTATION = gql`
   mutation AddProductToOrder(
     $id: String!

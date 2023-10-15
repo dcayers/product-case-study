@@ -1,3 +1,4 @@
+import { generateProductNo } from "@/lib/helpers/generateProductNo";
 import { builder } from "../builder";
 import { generateSearchString } from "@/lib/helpers/generateSearchString";
 
@@ -68,6 +69,7 @@ builder.mutationField("createProduct", (t) =>
         ...query,
         data: {
           ...args.input,
+          productNo: generateProductNo(),
         },
       });
     },

@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 import { ColorSchemeScript } from "@mantine/core";
 import { Providers } from "@/lib/providers";
@@ -32,6 +33,7 @@ export default function RootLayout({
           {children}
           {modal}
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

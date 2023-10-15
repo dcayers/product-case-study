@@ -18,6 +18,7 @@ datasource db {
 
 model Product {
   id          String          @id @default(uuid())
+  productNo   String          @unique()
   name        String
   description String
   price       Int
@@ -36,6 +37,7 @@ enum OrderStatus {
   Delivered
   Draft
   InTransit
+  Picked
   Picking
   Processing
   Received
