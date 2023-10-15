@@ -3,9 +3,11 @@ import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import prisma from "../lib/client";
+import { createContext } from "./context";
 
 export const builder = new SchemaBuilder<{
   PrismaTypes: PrismaTypes;
+  Context: ReturnType<typeof createContext>;
   Scalars: {
     Date: {
       Input: Date;
