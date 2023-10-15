@@ -54,7 +54,8 @@ builder.queryField("orders", (t) =>
     args: {
       input: t.arg({ type: SearchOrderInput }),
     },
-    resolve: (query, _parent, args) => {
+    resolve: async (query, _parent, args, ctx) => {
+      // console.log("....", await ctx);
       const where: Prisma.OrderFindManyArgs["where"] = { deleted: false };
 
       let orderBy: Record<string, any> = {};

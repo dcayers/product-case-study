@@ -88,8 +88,6 @@ export function OrderForm({
     PUBLISH_ORDER_MUTATION
   );
 
-  console.log(publishOrderData);
-
   return (
     <Box
       component="form"

@@ -1,7 +1,9 @@
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import { Analytics } from "@vercel/analytics/react";
+import { redirect } from "next/navigation";
 import { Inter } from "next/font/google";
+import { getSession } from "@auth0/nextjs-auth0";
+import { Analytics } from "@vercel/analytics/react";
 import {
   ColorSchemeScript,
   AppShell,
@@ -9,8 +11,10 @@ import {
   Text,
   AppShellHeader,
   AppShellMain,
+  Button,
 } from "@mantine/core";
 import { Providers } from "@/lib/providers";
+import Link from "next/link";
 
 export const metadata = {
   title: "Product Case Study",
@@ -23,13 +27,19 @@ const inter = Inter({
   display: "swap",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   modal,
 }: {
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
+  const session = await getSession();
+
+  if (!session) {
+    redirect("/api/auth/login");
+  }
+
   return (
     <html lang="en">
       <head>
@@ -41,6 +51,7 @@ export default function RootLayout({
             <AppShellHeader className="flex flex-row">
               <Flex
                 align="center"
+                justify="space-between"
                 gap="md"
                 style={{
                   height: 60,
@@ -56,6 +67,9 @@ export default function RootLayout({
                 >
                   Product Case Study
                 </Text>
+                <Button component={Link} href="/api/auth/logout">
+                  Logout
+                </Button>
               </Flex>
             </AppShellHeader>
             <AppShellMain maw={1536} style={{ margin: "0 auto" }}>
